@@ -1,0 +1,67 @@
+!pip install google-colab
+
+# Importando bibliotecas
+import pandas as pd
+from google.colab import drive
+# Importando dados do drive
+drive.mount('/content/drive')
+
+tabela = pd.read_csv("/content/drive/MyDrive/Aula2-PythonInsights/cancelamentos.csv")
+
+# Visualizar a base de dados
+tabela = tabela.drop(columns="CustomerID")
+display(tabela)
+
+# tratamento dos dados
+
+display(tabela.info())
+tabela = tabela.dropna()
+display(tabela.info())
+
+# analisar os cancelamentos
+
+display(tabela['cancelou'].value_counts())
+display(tabela['cancelou'].value_counts(normalize=True).map('{:.1%}'.format))
+
+#analisando o contrato mensal
+
+display(tabela['duracao_contrato'].value_counts())
+display(tabela['duracao_contrato'].value_counts(normalize=True))
+display(tabela.groupby('duracao_contrato').mean(numeric_only=True))
+
+#Removendo o contrato mensal por ser ruim para a empresa
+tabela = tabela[tabela["duracao_contrato"]!="monthly"]
+display(tabela)
+
+display(tabela["cancelou"].value_counts())
+
+display(tabela["cancelou"].value_counts(normalize=True).map('{:.1%}'.format))
+
+
+display(tabela['assinatura'].value_counts(normalize=True))
+display(tabela['assinatura'].mode()[0])
+
+
+!pip install plotly
+import plotly.express as px
+
+# criar o grafico
+
+for coluna in tabela.columns:
+    grafico = px.histogram(tabela, x=coluna, color="cancelou")
+    # exibir o grafico
+    grafico.show()
+
+    # clientes do contrato mensal TODOS cancelam
+    # ofercer desconto nos planos anuais e trimestrais
+# clientes que ligam mais do que 4 vezes para o call center, cancelam
+    # criar um processo para resolver o problema do cliente em no máximo 3 ligações
+# clientes que atrasaram mais de 20 dias, cancelaram
+    # política de resolver atrasos em até 10 dias (equipe financeira)
+
+tabela = tabela[tabela["ligacoes_callcenter"]<=4]
+tabela = tabela[tabela["dias_atraso"]<=20]
+
+display(tabela["cancelou"].value_counts())
+# em percentual
+display(tabela["cancelou"].value_counts(normalize=True))
